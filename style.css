@@ -135,14 +135,15 @@ body {
 
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 175px 110px 155px auto;
+  grid-template-columns: 1fr 175px 110px 155px 150px auto;
   gap: 10px;
 }
 
 .todo-input,
 .todo-assignee,
 .todo-category,
-.todo-priority {
+.todo-priority,
+.todo-due {
   width: 100%;
   font-family: inherit;
   font-size: 0.94rem;
@@ -164,7 +165,8 @@ body {
 .todo-input:focus,
 .todo-assignee:focus,
 .todo-category:focus,
-.todo-priority:focus {
+.todo-priority:focus,
+.todo-due:focus {
   background-color: #FFFFFF;
   border-color: var(--border-focus);
   box-shadow: 0 0 0 3px var(--accent-soft);
@@ -504,6 +506,19 @@ body {
 .badge-life {
   background-color: var(--tag-life-bg);
   color: var(--tag-life-text);
+}
+
+/* 截止日期標籤：今天或已過期時顯示紅色 */
+.badge-due {
+  background-color: var(--tag-assignee-bg);
+  color: var(--tag-assignee-text);
+  font-weight: 500;
+}
+
+.badge-due-urgent {
+  background-color: var(--prio-high-bg);
+  color: var(--prio-high-text);
+  font-weight: 600;
 }
 
 .btn-delete {

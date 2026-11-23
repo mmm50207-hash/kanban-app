@@ -28,6 +28,7 @@
   const todoAssignee = document.getElementById('todo-assignee');
   const todoCategory = document.getElementById('todo-category');
   const todoPriority = document.getElementById('todo-priority');
+  const todoDue = document.getElementById('todo-due');
   const filterTabs = document.querySelectorAll('.filter-tab');
   const countAllEl = document.getElementById('count-all');
   const countWorkEl = document.getElementById('count-work');
@@ -64,6 +65,20 @@
     todayDateEl.textContent = formatter.format(now);
   }
 
+  // 截止日期工具：<input type="date"> 的值格式為 YYYY-MM-DD
+  function normalizeDueDate(value) {
+    return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
+      ? value
+      : '';
+  }
+
+  // 取得本地時區的今天日期 (YYYY-MM-DD)
+  function getTodayString() {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+
   // 正規化單筆資料（相容舊版資料）
   function normalizeTodo(item) {
     let status = item.status;
@@ -75,6 +90,7 @@
     return {
       ...item,
       priority,
+      dueDate: normalizeDueDate(item.dueDate),
       status,
       completed: status === 'done',
     };
@@ -116,13 +132,14 @@
   }
 
   // 新增任務（預設進入 To-do 欄位並依優先程度排序）
-  function addTodo(text, assignee, category, priority) {
+  function addTodo(text, assignee, category, priority, dueDate) {
     const cleanText = text.trim();
     if (!cleanText) return;
 
     const cleanAssignee = assignee.trim();
     const validCategory = category === 'life' ? 'life' : 'work';
     const validPriority = PRIORITY_CONFIG[priority] ? priority : 'medium';
+    const validDueDate = normalizeDueDate(dueDate);
 
     const newTodo = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -130,6 +147,7 @@
       assignee: cleanAssignee,
       category: validCategory,
       priority: validPriority,
+      dueDate: validDueDate,
       status: 'todo',
       completed: false,
       createdAt: Date.now(),
@@ -254,6 +272,16 @@
       assigneeBadge.textContent = `👤 ${item.assignee}`;
       assigneeBadge.title = `負責人：${item.assignee}`;
       badgesDiv.appendChild(assigneeBadge);
+    }
+
+    if (item.dueDate) {
+      const isUrgent = item.dueDate <= getTodayString();
+      const dueText = item.dueDate.replace(/-/g, '/');
+      const dueBadge = document.createElement('span');
+      dueBadge.className = `badge badge-due${isUrgent ? ' badge-due-urgent' : ''}`;
+      dueBadge.textContent = `📅 ${dueText}`;
+      dueBadge.title = `截止日期：${dueText}`;
+      badgesDiv.appendChild(dueBadge);
     }
 
     footerDiv.appendChild(badgesDiv);
@@ -387,11 +415,13 @@
       todoInput.value,
       todoAssignee.value,
       todoCategory.value,
-      todoPriority.value
+      todoPriority.value,
+      todoDue.value
     );
     todoInput.value = '';
     todoAssignee.value = '';
     todoPriority.value = 'medium';
+    todoDue.value = '';
     todoInput.focus();
   });
 
